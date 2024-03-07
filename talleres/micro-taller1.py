@@ -1,6 +1,6 @@
 import marimo
 
-__generated_with = "0.2.8"
+__generated_with = "0.1.88"
 app = marimo.App()
 
 
@@ -8,12 +8,13 @@ app = marimo.App()
 def __():
     import marimo as mo
     import matplotlib.pyplot as plt
+    import matplotlib.patches as patches
     import numpy as np
 
     p = [250,260,270,280,290,300,310,320,330,340,350]
     o = [0,40,80,120,160,200,240,280,320,360,400]
     d = [240,220,200,180,160,140,120,100,80,60,40]
-    return d, mo, np, o, p, plt
+    return d, mo, np, o, p, patches, plt
 
 
 @app.cell
@@ -62,7 +63,7 @@ def __(mo):
         \[
         Q^d(p) = m_dp + c_d = 740-2p
         \]
-        
+
         ## 1.b. Equilibrio
         Dadas estas funciones podemos calcular el equilibrio en 
 
@@ -72,7 +73,19 @@ def __(mo):
         Q^o(p) & = Q^d(p) \\
         4p - 1000  & = 740-2p \\
         6p  & = 1740 \\
-        p  & = 290
+        p^*  & = 290
+        \end{split}
+        \end{equation}
+        \]
+
+        Lo que quiere decir que la cantidad de equilibrio será:
+        
+        \[
+        \begin{equation}
+        \begin{split}
+        Q^o(p^*) & = 4p* - 1000 \\
+        & = 4*290 - 1000 \\
+        q^*  & = 160
         \end{split}
         \end{equation}
         \]
@@ -131,7 +144,7 @@ def __(mo):
         \[
         \epsilon_d(290) = \frac{-2*290}{740-2*290} = \frac{-580}{1320} = -0.43
         \]
-        
+
         ## 1.d. Subsidios
 
         Tras aplicar un subsidio pagado a los oferentes de 30 mil la nueva función de oferta sería:
@@ -157,13 +170,13 @@ def __(mo):
         Q^o_s(p) & = Q^d(p) \\
         4p - 880 & = 740-2p \\
         6p & = 1620 \\
-        p & = 270
+        p^{**} & = 270
         \end{split}
         \end{equation}
         \]
 
         Luego, la cantidad de equilibrio será:
-        
+
         \[
         \begin{equation}
         \begin{split}
@@ -173,8 +186,8 @@ def __(mo):
         \end{equation}
         \]
 
-        Gráficamente marcaremos el antigüo equilibrio marcado con $p^{**}$ y el nuevo equilibrio con $p^*$:
-        
+        Gráficamente marcaremos el antigüo equilibrio marcado con $p^{*}$ y el nuevo equilibrio con $p^{**}$:
+
         """
     )
     return
@@ -182,32 +195,36 @@ def __(mo):
 
 @app.cell
 def __(d, np, o, p, plt):
-    fig2, ax2 = plt.subplots(1,1)
+    def draw_subsidy(ax):
+        ax.plot(o,p, linestyle=(0, (1, 10)), color='r')
+        
+        ax.plot(o,np.array(p)-30, linestyle='--', marker='o', color='r')
+        ax.axvline(160, linestyle=(0, (1, 10)))
+        ax.axhline(290, linestyle=(0, (1, 10)))
+        
+        ax.plot(d,p, linestyle='--', marker='o', color='b')
+        
+        ax.set_xlim([120,250])
+        ax.set_xticks(np.append(ax.get_xticks(),[160,120,240]))
+        ax.set_ylim([250,310])
+        ax.set_yticks(np.append(ax.get_yticks(),[290,310]))
+        ax.set_xlabel('Quantity')
+        ax.set_ylabel('Price')
+        
+        
+        ax.axvline(200, linestyle='dotted')
+        ax.axhline(270, linestyle='dotted')
+        
+        ax.axhline(300, linestyle='dotted')
+        ax.annotate('q**',xy=(202,252), xytext=(202,252),annotation_clip=False, color='blue')
+        ax.annotate('p*',xy=(122,292), xytext=(122,292),annotation_clip=False, color='blue')
+        ax.annotate('p**',xy=(122,272), xytext=(122,272),annotation_clip=False, color='blue')
+        ax.annotate('q*',xy=(162,252), xytext=(162,252),annotation_clip=False, color='blue')
 
-    ax2.plot(o,p, linestyle=(0, (1, 10)), color='r')
-
-    ax2.plot(o,np.array(p)-30, linestyle='--', marker='o', color='r')
-    ax2.axvline(160, linestyle=(0, (1, 10)))
-    ax2.axhline(290, linestyle=(0, (1, 10)))
-
-    ax2.plot(d,p, linestyle='--', marker='o', color='b')
-
-    ax2.set_xlim([120,250])
-    ax2.set_xticks(np.append(ax2.get_xticks(),[160,120,240]))
-    ax2.set_ylim([250,310])
-    ax2.set_yticks(np.append(ax2.get_yticks(),[290,310]))
-    ax2.set_xlabel('Quantity')
-    ax2.set_ylabel('Price')
-
-
-    ax2.axvline(200, linestyle='dotted')
-    ax2.axhline(270, linestyle='dotted')
-    ax2.axhline(300, linestyle='dotted')
-    ax2.annotate('q**',xy=(202,252), xytext=(202,252),annotation_clip=False, color='blue')
-    ax2.annotate('p**',xy=(122,272), xytext=(122,272),annotation_clip=False, color='blue')
-    ax2.annotate('q*',xy=(162,252), xytext=(162,252),annotation_clip=False, color='blue')
-
-    return ax2, fig2
+    _, ax2 = plt.subplots(1,1)
+    draw_subsidy(ax2)
+    ax2
+    return ax2, draw_subsidy
 
 
 @app.cell
@@ -226,17 +243,93 @@ def __(mo):
         \end{split}
         \end{equation}
         \]
-        
-        ### 1.d.iii. Beneficio para los consumidores
-        ### 1.d.iv Beneficio para los oferentes
-        ### 1.d.v. El caso del SOAT en Colombia
+
+        Lo que se puede visualizar en la gráfica de oferta y demanda así:
         """
     )
     return
 
 
 @app.cell
-def __():
+def __(draw_subsidy, patches, plt):
+    _, ax3 = plt.subplots(1,1)
+    draw_subsidy(ax3)
+    rect = patches.Rectangle((0,270), 200, 30, linewidth=1, fill=False, edgecolor='g', hatch='//')
+    ax3.add_patch(rect)
+    ax3
+    return ax3, rect
+
+
+@app.cell
+def __(mo):
+    mo.md(
+        r"""
+        ### 1.d.iii. Beneficio para los consumidores
+        
+        Los consumidores se verán beneficiados en la medida que ahorran (dejan de pagar) un excedente superior al que existía en el precio de equilibrio original. Esta diferencia de ahorro se puede calcular con la integral definida:
+
+        \[
+        \begin{equation}
+        \begin{split}
+        Costo_e &= q^{**} * p_s \\
+        & = 200 * 30.000 \\
+        & = 6.000.000
+        \end{split}
+        \end{equation}
+        \] 
+
+        """
+    )
+    return
+
+
+@app.cell
+def __(draw_subsidy, patches, plt):
+    _, ax4 = plt.subplots(1,1)
+    draw_subsidy(ax4)
+    ax4.add_patch(patches.Rectangle((0,270), 160, 20, linewidth=0, fill=False, edgecolor='b', hatch='o'))
+    ax4.add_patch(patches.Polygon([(160,270),(200,270),(160,290)], linewidth=0, fill=False, edgecolor='b', hatch='o'))
+    ax4
+    return ax4,
+
+
+@app.cell
+def __(mo):
+    mo.md(
+        r"""
+        ### 1.d.iv Beneficio para los oferentes
+        """
+    )
+    return
+
+
+@app.cell
+def __(draw_subsidy, patches, plt):
+    _, ax5 = plt.subplots(1,1)
+    draw_subsidy(ax5)
+    ax5.add_patch(patches.Rectangle((0,260), 160, 10, linewidth=0, fill=False, edgecolor='r', hatch='o'))
+    ax5.add_patch(patches.Polygon([(160,260),(200,270),(160,270)], linewidth=0, fill=False, edgecolor='r', hatch='o'))
+    ax5
+    return ax5,
+
+
+@app.cell
+def __(draw_subsidy, patches, plt):
+    _, ax6 = plt.subplots(1,1)
+    draw_subsidy(ax6)
+    ax6.add_patch(patches.Rectangle((0,290), 160, 10, linewidth=0, fill=False, edgecolor='r', hatch='o'))
+    ax6.add_patch(patches.Polygon([(160,290),(200,300),(160,300)], linewidth=0, fill=False, edgecolor='r', hatch='o'))
+    ax6
+    return ax6,
+
+
+@app.cell
+def __(mo):
+    mo.md(
+        r"""
+        ### 1.d.v. El caso del SOAT en Colombia
+        """
+    )
     return
 
 
@@ -271,9 +364,45 @@ def __(mo):
 
     ## 2.b. Fijar precio máximo
 
-    Encontramo
+    Para entender el impacto de un precio máximo podemos 
     """)
     return
+
+
+@app.cell
+def __(d, draw_subsidy, np, plt):
+    def draw_planetickets(ax):
+        p = np.range(0,250)
+        o = p-0.1
+        ax.plot(o,p, linestyle=(0, (1, 10)), color='r')
+        
+        ax.plot(o,np.array(p)-30, linestyle='--', marker='o', color='r')
+        ax.axvline(160, linestyle=(0, (1, 10)))
+        ax.axhline(290, linestyle=(0, (1, 10)))
+        
+        ax.plot(d,p, linestyle='--', marker='o', color='b')
+        
+        ax.set_xlim([120,250])
+        ax.set_xticks(np.append(ax.get_xticks(),[160,120,240]))
+        ax.set_ylim([250,310])
+        ax.set_yticks(np.append(ax.get_yticks(),[290,310]))
+        ax.set_xlabel('Quantity')
+        ax.set_ylabel('Price')
+        
+        
+        ax.axvline(200, linestyle='dotted')
+        ax.axhline(270, linestyle='dotted')
+        
+        ax.axhline(300, linestyle='dotted')
+        ax.annotate('q**',xy=(202,252), xytext=(202,252),annotation_clip=False, color='blue')
+        ax.annotate('p*',xy=(122,292), xytext=(122,292),annotation_clip=False, color='blue')
+        ax.annotate('p**',xy=(122,272), xytext=(122,272),annotation_clip=False, color='blue')
+        ax.annotate('q*',xy=(162,252), xytext=(162,252),annotation_clip=False, color='blue')
+
+    _, ax2 = plt.subplots(1,1)
+    draw_subsidy(ax2)
+    ax2
+    return ax2, draw_planetickets
 
 
 if __name__ == "__main__":
